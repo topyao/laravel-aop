@@ -13,6 +13,6 @@ declare(strict_types=1);
 
 namespace Max\LaravelAop\Exceptions;
 
-class ProxyHandlerException extends \RuntimeException
+class ProxyHandleException extends \RuntimeException
 {
 }

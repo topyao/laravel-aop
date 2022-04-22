@@ -33,15 +33,8 @@ trait ProxyHandler
      */
     protected function __callViaProxy(string $function, Closure $callback, array $arguments): mixed
     {
-        $joinPoint        = new JoinPoint($this, $function, $arguments, $callback);
-        $reflectionMethod = new \ReflectionMethod(__CLASS__, $function);
-        $aspects          = [];
-        foreach ($reflectionMethod->getAttributes() as $attribute) {
-            $instance = $attribute->newInstance();
-            if ($instance instanceof AspectInterface) {
-                $aspects[] = $instance;
-            }
-        }
+        $joinPoint = new JoinPoint($this, $function, $arguments, $callback);
+        $aspects   = AspectCollector::getMethodAspects(__CLASS__, $function);
         if (empty($aspects)) {
             return $joinPoint->process();
         }

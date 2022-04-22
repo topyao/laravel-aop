@@ -15,6 +15,6 @@ namespace Max\LaravelAop\Exceptions;
 
 use RuntimeException;
 
-class PropertyHandlerException extends RuntimeException
+class PropertyHandleException extends RuntimeException
 {
 }

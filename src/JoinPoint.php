@@ -27,10 +27,10 @@ class JoinPoint
      * @param Closure $callback
      */
     public function __construct(
-        protected object  $proxy,
-        protected string  $function,
-        protected array   $arguments,
-        protected Closure $callback
+        public object  $proxy,
+        public string  $function,
+        public array   $arguments,
+        public Closure $callback
     )
     {
     }
@@ -44,29 +44,5 @@ class JoinPoint
     public function process(): mixed
     {
         return app()->call($this->callback, $this->arguments);
-    }
-
-    /**
-     * @return object
-     */
-    public function getProxy(): object
-    {
-        return $this->proxy;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFunction(): string
-    {
-        return $this->function;
-    }
-
-    /**
-     * @return array
-     */
-    public function getArguments(): array
-    {
-        return $this->arguments;
     }
 }

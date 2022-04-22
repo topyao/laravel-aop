@@ -147,13 +147,15 @@ final class Scanner
      */
     protected function proxy()
     {
-        $filesystem = new Filesystem();
+        $aspectCache = $this->runtimeDir . 'aspects.cache';
+        $filesystem  = new Filesystem();
         if (!$filesystem->exists($this->proxyMap)) {
             $proxyDir = $this->runtimeDir . 'proxy/';
             $filesystem->makeDirectory($proxyDir, 0755, true, true);
             $filesystem->cleanDirectory($proxyDir);
             $classMap = $this->collect();
-            $scanMap  = [];
+            $filesystem->put($aspectCache, AspectCollector::export());
+            $scanMap = [];
             foreach ($classMap as $class => $path) {
                 $proxyPath = $proxyDir . str_replace('\\', '_', $class) . '_Proxy.php';
                 $filesystem->put($proxyPath, $this->parse($class, $path));
@@ -162,6 +164,7 @@ final class Scanner
             $filesystem->put($this->proxyMap, sprintf("<?php \nreturn %s;", var_export($scanMap, true)));
             return $scanMap;
         }
+        AspectCollector::import(file_get_contents($aspectCache));
         return include $this->proxyMap;
     }
 
@@ -200,12 +203,15 @@ final class Scanner
             foreach ($this->scanDir($dir) as $class => $path) {
                 $reflectionClass = new \ReflectionClass($class);
                 foreach ($reflectionClass->getMethods() as $reflectionMethod) {
+                    $method = $reflectionMethod->getName();
                     foreach ($reflectionMethod->getAttributes() as $attribute) {
                         try {
                             $instance = $attribute->newInstance();
                             if ($instance instanceof AspectInterface) {
-                                $proxies[$class] = $path;
-                                break;
+                                AspectCollector::collectMethod($class, $method, $instance);
+                                if (!isset($proxies[$class])) {
+                                    $proxies[$class] = $path;
+                                }
                             }
                         } catch (Throwable) {
                             // 这个注解不能用，通常是类不存在

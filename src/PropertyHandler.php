@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Max\LaravelAop;
 
 use Max\LaravelAop\Contracts\PropertyAttribute;
-use Max\LaravelAop\Exceptions\PropertyHandlerException;
+use Max\LaravelAop\Exceptions\PropertyHandleException;
 use Throwable;
 
 trait PropertyHandler
@@ -35,9 +35,9 @@ trait PropertyHandler
                         );
                     }
                 } catch (Throwable $throwable) {
-                    throw new PropertyHandlerException(
+                    throw new PropertyHandleException(
                         sprintf('Cannot inject Property %s into %s. (%s)',
-                            $property, __CLASS__, $throwable->getMessage()
+                            $reflectionProperty->getName(), __CLASS__, $throwable->getMessage()
                         )
                     );
                 }
