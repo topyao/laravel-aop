@@ -15,6 +15,7 @@ namespace Max\LaravelAop;
 
 use Composer\Autoload\ClassLoader;
 use Max\LaravelAop\Contracts\AspectInterface;
+use Max\LaravelAop\Contracts\PropertyAttribute;
 use Max\Utils\Filesystem;
 use PhpParser\Error;
 use PhpParser\Node\Stmt\Class_;
@@ -202,6 +203,22 @@ final class Scanner
         foreach ($this->scanDir as $dir) {
             foreach ($this->scanDir($dir) as $class => $path) {
                 $reflectionClass = new \ReflectionClass($class);
+                foreach ($reflectionClass->getProperties() as $reflectionProperty) {
+                    foreach ($reflectionProperty->getAttributes() as $attribute) {
+                        try {
+                            $instance = $attribute->newInstance();
+                            if ($instance instanceof PropertyAttribute) {
+                                AspectCollector::collectProperty($class, $reflectionProperty->getName(), $instance);
+                                if (!isset($proxies[$class])) {
+                                    $proxies[$class] = $path;
+                                }
+                            }
+                        } catch (Throwable) {
+                            // 这个注解不能用，通常是类不存在
+                        }
+                    }
+                }
+
                 foreach ($reflectionClass->getMethods() as $reflectionMethod) {
                     $method = $reflectionMethod->getName();
                     foreach ($reflectionMethod->getAttributes() as $attribute) {

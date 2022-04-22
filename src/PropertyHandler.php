@@ -25,22 +25,19 @@ trait PropertyHandler
     protected function __handleProperties(): void
     {
         $reflectionClass = new \ReflectionClass(__CLASS__);
-        foreach ($reflectionClass->getProperties() as $reflectionProperty) {
-            foreach ($reflectionProperty->getAttributes() as $attribute) {
+        foreach (AspectCollector::getClassPropertyAttributes(__CLASS__) as $property => $attributes) {
+            foreach ($attributes as $attribute) {
                 try {
-                    $instance = $attribute->newInstance();
-                    if ($instance instanceof PropertyAttribute) {
-                        $instance->handle(
-                            $reflectionClass, $reflectionProperty, $this
-                        );
-                    }
+                    /** @var PropertyAttribute $attribute */
+                    $attribute->handle($reflectionClass, $reflectionClass->getProperty($property), $this);
                 } catch (Throwable $throwable) {
                     throw new PropertyHandleException(
                         sprintf('Cannot inject Property %s into %s. (%s)',
-                            $reflectionProperty->getName(), __CLASS__, $throwable->getMessage()
+                            $property, __CLASS__, $throwable->getMessage()
                         )
                     );
                 }
+
             }
         }
     }

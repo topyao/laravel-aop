@@ -23,6 +23,13 @@ use ReflectionUnionType;
 class Inject implements PropertyAttribute
 {
     /**
+     * @param string $id
+     */
+    public function __construct(protected ?string $id = null)
+    {
+    }
+
+    /**
      * @param ReflectionClass    $reflectionClass
      * @param ReflectionProperty $reflectionProperty
      * @param object             $object
@@ -31,15 +38,32 @@ class Inject implements PropertyAttribute
      */
     public function handle(ReflectionClass $reflectionClass, ReflectionProperty $reflectionProperty, object $object)
     {
-        $type = $reflectionProperty->getType();
-        if (is_null($type)
-            || ($type instanceof ReflectionNamedType && $type->isBuiltin())
-            || $type instanceof ReflectionUnionType
-            || ($type->getName()) === 'Closure') {
-            return;
+        if (isset($this->id)) {
+            $this->setValue($reflectionProperty, $object, app()->make($this->id));
         } else {
-            $reflectionProperty->setAccessible(true);
-            $reflectionProperty->setValue($object, \app()->make($type->getName()));
+            $type = $reflectionProperty->getType();
+            if (is_null($type)
+                || ($type instanceof ReflectionNamedType && $type->isBuiltin())
+                || $type instanceof ReflectionUnionType
+                || ($type->getName()) === 'Closure') {
+                return;
+            } else {
+                $this->setValue($reflectionProperty, $object, \app()->make($type->getName()));
+            }
         }
+    }
+
+    /**
+     * @param ReflectionProperty $reflectionProperty
+     * @param object             $object
+     * @param mixed              $value
+     *
+     * @return void
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    protected function setValue(ReflectionProperty $reflectionProperty, object $object, mixed $value)
+    {
+        $reflectionProperty->setAccessible(true);
+        $reflectionProperty->setValue($object, $value);
     }
 }

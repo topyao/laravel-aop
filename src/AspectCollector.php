@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Max\LaravelAop;
 
 use Max\LaravelAop\Contracts\AspectInterface;
+use Max\LaravelAop\Contracts\PropertyAttribute;
 
 class AspectCollector
 {
@@ -43,6 +44,39 @@ class AspectCollector
     public static function collectMethod(string $class, string $method, AspectInterface $aspect): void
     {
         self::$container['method'][$class][$method][] = $aspect;
+    }
+
+    /**
+     * @param string            $class
+     * @param string            $property
+     * @param PropertyAttribute $propertyAttribute
+     *
+     * @return void
+     */
+    public static function collectProperty(string $class, string $property, PropertyAttribute $propertyAttribute): void
+    {
+        self::$container['property'][$class][$property][] = $propertyAttribute;
+    }
+
+    /**
+     * @param string $class
+     * @param string $property
+     *
+     * @return array
+     */
+    public static function getPropertyAttributes(string $class, string $property): array
+    {
+        return self::$container['property'][$class][$property] ?? [];
+    }
+
+    /**
+     * @param string $class
+     *
+     * @return array
+     */
+    public static function getClassPropertyAttributes(string $class): array
+    {
+        return self::$container['property'][$class] ?? [];
     }
 
     /**

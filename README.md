@@ -43,19 +43,19 @@ class IndexController
     #[Inject]
     protected Request $request;
 
-    #[Cacheable]
+    #[Cacheable(prefix: 'cv', ttl: 1000)]
     public function index()
     {
         dump($this->request);
+        return 'Hello, AOP.';
     }
 }
 
 ```
 
-我使用了两个注解`Inject`和`Cacheable`, 其中`Cacheable`只用来测试，没有实际功能。使用`php artisan serve`
-启动内置服务，访问一下来生成代理类，再访问一下，会走代理，输出内容为：`Before hello.（dump内容）After hello`
-
-支持多个切面类注解，切面类实现方法参考`Cacheable`, 属性注入注解参考`Inject`，例如
+我使用了两个注解`Inject`和`Cacheable`, 使用`php artisan serve`
+启动内置服务，访问一下来生成代理类，再访问一下，会走代理，输出内容为：`Before hello.（dump内容）After hello, Hello, AOP.`,
+执行顺序是正确的。刷新页面会返回被缓存的内容，改函数返回值会被缓存1000秒, 使用多个切面类会按照顺序执行。切面类实现方法参考`Cacheable`, 属性注入注解参考`Inject`，例如
 
 ```php
 #[Cacheable]
