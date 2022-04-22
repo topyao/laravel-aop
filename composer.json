@@ -1,0 +1,19 @@
+{
+    "name": "max/laravel-aop",
+    "autoload": {
+        "psr-4": {
+            "Max\\LaravelAop\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "chengyao",
+            "email": "bigyao@139.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "max/utils": "dev-master",
+        "nikic/php-parser": "^4.0"
+    }
+}
