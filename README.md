@@ -46,13 +46,24 @@ class IndexController
     #[Cacheable]
     public function index()
     {
-        echo 'Hello AOP.'; // 这里用echo可以测试执行顺序
+        dump($this->request);
     }
 }
 
 ```
 
 我使用了两个注解`Inject`和`Cacheable`, 其中`Cacheable`只用来测试，没有实际功能。使用`php artisan serve`
-启动内置服务，访问一下来生成代理类，再访问一下，会走代理，输出内容为：`Before hello.Hello AOP.After hello`. 还可以使用`dump`打印下当前控制器的属性`$request`,发现已经被注入了。
+启动内置服务，访问一下来生成代理类，再访问一下，会走代理，输出内容为：`Before hello.（dump内容）After hello`
+
+支持多个切面类注解，切面类实现方法参考`Cacheable`, 属性注入注解参考`Inject`，例如
+
+```php
+#[Cacheable]
+#[Round]
+public function index()
+{
+    echo 'Hello AOP.'; // 这里用echo可以测试执行顺序
+}
+```
 
 > 注意：修改代码后要删除`storage/runtime`文件夹
