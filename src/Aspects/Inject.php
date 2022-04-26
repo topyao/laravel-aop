@@ -23,7 +23,7 @@ use ReflectionUnionType;
 class Inject implements PropertyAttribute
 {
     /**
-     * @param string $id
+     * @param string|null $id
      */
     public function __construct(protected ?string $id = null)
     {

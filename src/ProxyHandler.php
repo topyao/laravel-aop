@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Max\LaravelAop;
 
 use Closure;
-use Max\LaravelAop\Contracts\AspectInterface;
 use Max\Utils\Pipeline;
 use Psr\Container\ContainerExceptionInterface;
 use ReflectionException;
@@ -22,25 +21,19 @@ use ReflectionException;
 trait ProxyHandler
 {
     /**
-     * @param string  $function
+     * @param string  $method
      * @param Closure $callback
-     * @param array   $arguments
+     * @param array   $parameters
      *
      * @return mixed
      * @throws ReflectionException
-     * @throws NotFoundException
      * @throws ContainerExceptionInterface
      */
-    protected function __callViaProxy(string $function, Closure $callback, array $arguments): mixed
+    protected function __callViaProxy(string $method, Closure $callback, array $parameters): mixed
     {
-        $joinPoint = new JoinPoint($this, $function, $arguments, $callback);
-        $aspects   = AspectCollector::getMethodAspects(__CLASS__, $function);
-        if (empty($aspects)) {
-            return $joinPoint->process();
-        }
         return (new Pipeline(app()))
-            ->send($joinPoint)
-            ->through($aspects)
+            ->send(new JoinPoint($this, $method, $parameters, $callback))
+            ->through(AspectCollector::getMethodAspects(__CLASS__, $method))
             ->via('process')
             ->then(function(JoinPoint $joinPoint) {
                 return $joinPoint->process();

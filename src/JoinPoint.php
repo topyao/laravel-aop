@@ -14,35 +14,29 @@ declare(strict_types=1);
 namespace Max\LaravelAop;
 
 use Closure;
-use Max\Di\ReflectionManager;
-use Psr\Container\ContainerExceptionInterface;
-use ReflectionException;
 
 class JoinPoint
 {
     /**
-     * @param object  $proxy
-     * @param string  $function
-     * @param array   $arguments
+     * @param object  $object
+     * @param string  $method
+     * @param array   $parameters
      * @param Closure $callback
      */
     public function __construct(
-        public object  $proxy,
-        public string  $function,
-        public array   $arguments,
-        public Closure $callback
+        public object     $object,
+        public string     $method,
+        public array      $parameters,
+        protected Closure $callback
     )
     {
     }
 
     /**
      * @return mixed
-     * @throws NotFoundException
-     * @throws ContainerExceptionInterface
-     * @throws ReflectionException
      */
     public function process(): mixed
     {
-        return app()->call($this->callback, $this->arguments);
+        return call_user_func_array($this->callback, $this->parameters);
     }
 }

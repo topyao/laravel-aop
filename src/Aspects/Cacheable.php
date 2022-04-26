@@ -22,8 +22,8 @@ use Max\LaravelAop\JoinPoint;
 class Cacheable implements AspectInterface
 {
     public function __construct(
-        protected string $prefix = '',
-        protected int    $ttl = 0
+        protected string $prefix = 'max-laravel-aop',
+        protected int    $ttl = 3600
     )
     {
     }
@@ -46,7 +46,7 @@ class Cacheable implements AspectInterface
      */
     protected function getKey(JoinPoint $joinPoint): string
     {
-        $key = $this->key ?? ($joinPoint->proxy::class . ':' . $joinPoint->function . ':' . serialize(array_filter($joinPoint->arguments, fn($item) => !is_object($item))));
+        $key = $this->key ?? ($joinPoint->object::class . ':' . $joinPoint->method . ':' . serialize(array_filter($joinPoint->parameters, fn($item) => !is_object($item))));
         return $this->prefix ? ($this->prefix . ':' . $key) : $key;
     }
 }

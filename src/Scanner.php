@@ -53,6 +53,8 @@ final class Scanner
      * @param ClassLoader $loader
      * @param array       $scanDir    扫描路径
      * @param string      $runtimeDir 缓存路径
+     *
+     * @throws ReflectionException
      */
     private function __construct(
         protected ClassLoader $loader,
@@ -130,8 +132,6 @@ final class Scanner
      *
      * @return void
      * @throws ContainerExceptionInterface
-     * @throws Exceptions\NotFoundException
-     * @throws ReflectionException
      */
     public static function init(ClassLoader $loader, array $scanDir, string $runtimeDir): void
     {
